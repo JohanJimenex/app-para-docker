@@ -1,0 +1,70 @@
+#Este archivo es para crear una imagen
+
+#instalamos una imagen de node, una versión ligera,
+#viene con en una carpeta interna llamada '/app', tambien vienen mas carpetas como '/User', '/lib'
+# FROM node:lts-alpine
+
+#Especificar la plataforma, por defecto toma el de la pc o mac que ejecute el build
+# FROM --platform=linux/amd64 node:lts-alpine
+
+#comando para instalar una imagen de buildX la cual nos permite crear imagenes para diferentes arquitecturas/plataformas
+# docker buildx create --name mybuulder --driver docker-container --bootstrap
+#Ejecutamos docker buildx ls para ver el listado de los builders
+#y docker buildx use mybuilder  #para usarlo
+#docker buildx inspect para ver a cuales plataforma nos permite buildear
+
+#Ejecutar el comando: docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v8 --tag johanjimenex/contador --push .
+#Todo JUNTO con las comas
+FROM --platform=$BUILDPLATFORM node:lts-alpine
+
+#Especificamos a la carpeta de trabajo que es '/app' de node
+#es como ejecutar cd app
+WORKDIR /app
+
+#especificamos lor archivos a copiar
+# y de ultimo se coloca a donde queremos copiarlos
+# COPY index.js package.json /app/ #si no se usa el WORKDIR se pone la ruta manual
+# COPY index.js package.json ./ #Se coloca './' porque ya estamos dentro del folder /app
+#De esta forma copiamos todo dentro de /app # agregamos un .dockerignore para agregar los folder a ignorar
+COPY . ./
+
+
+#Ejecutamos comandos con 'RUN' 
+# RUN npm install & npm run test & etc , # de esta forma ejecutamos varios comandos uno detras de otro
+# Estos comando se ejecutan desde que el usuario instala la imagen y antes de que el usuario ejecute 'docker run'
+RUN npm install
+
+#Ejecutamos las prubas, si fallan se cancela la consturccion
+RUN npm run test
+
+# removemos esta dependencia ya que no la necesitamos en nuestra version de produccion
+# RUN npm uninstall jest
+
+#Otra forma es eliminar todos los archivos que queremos y modulos, y volver a ejecutar el comando de npm install pero solo de produccion
+#comando rm (remove) r (recursivo, todo lo que esté dentro del folder) f (forzado)
+RUN rm -rf saludo.js && rm -rf saludo.test.js && rm -rf node_modules
+
+# Instalamods solo las dependencias de produccion
+RUN npm install --prod
+
+#Ejecutamos comandos tambien con CMD,
+#estos comandos se ejecutan solo cuando el usuario ejecuta el comando 'docker run nombreImagen'
+CMD ["node","index.js"]
+
+#comando para construir la imagen
+#el punto al final indica el directorio donde s eencuentra el Dockerfile, o sea en la carpeta raiz, sino se debe especificar ./pathx/dir/etc
+# docker build --tag mi-contador:uno --push . #si le agregamos el --push lo sube automatico al repos
+
+# comando para copiar imagenes y cambiar tag
+# docker image tag nombreImagen:tag nombreImagen:tagNuevo
+
+#comando para abrir una terminal dentro de la imagen
+#docker exec -it <3 primerosCodigoContenedor o nombre> /bin/sh
+
+#subir imagen a dockerhub, primero se debe crear el repo en docker hub si o si
+# Comando para subir la imagen: 
+# docker push johanjimenex/nombreImagen:tag 
+
+
+#Leer contenido de un documento desde consola type nombre.ext o cat nombre.ext
+
