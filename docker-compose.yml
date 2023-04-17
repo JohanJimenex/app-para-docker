@@ -1,0 +1,30 @@
+# Este docker compose  se utilizaría solo en un proyecto que vaya a usar imagenes como parte de sus dependencias
+# al mismo tiempo usaremos nuetro propio proyecto  en un contenedor de Docker en vez de en mi local
+
+version: '3'
+
+services: 
+  miapp:
+    build:
+      context: . #ruta donde se encuentra el el Dockerfile
+      target: dev # alias a usar de la etapa previamente creada en el Dockerfile con 'as'
+      dockerfile: Dockerfile #nombre del dockerfile, puede variar ej: dockerfile-v1 etc
+      image: johanjimenex/miapp:tagname # esto crea la imagen tomando en cuenta solo el pedazo de la etapa 'dev' en el dockerfile
+    # command: npm run start # tambien se puede poner directo en el Dockerfile CMD ['npm','start']
+
+    volumes:
+      - .:/app/ #mapeamobs (bind) la carpeta de nosotros con la de app, para que se instalente los modulos etc
+      - /app/node_modules
+
+    container_name: nombre-contnedor #colocamos un nombre personalizado al contenedor
+    # ports:
+      # - PORT:3000 #este es el puerto donde se expone, tomado de las variables de entorno .env creo o de la imagen
+    # enviroment:
+      # VARIABLEX: klk
+      # VARIABLEZ: ${VARIABLEZ}
+
+
+
+      #Luego debemos ejecutar el comando docker compose build y luego docker compose up
+
+      # si ejecutamos docker compose -f nombredeldockercompose.yml build app, toma solo el servicio de miapp arriba.

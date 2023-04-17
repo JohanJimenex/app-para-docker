@@ -1,3 +1,9 @@
+#Este paso no va, es un extra para otra probar el dockercompose junto con el dockerfile
+FROM node:lts-alpine as dev
+WORKDIR /app
+COPY package.json ./
+RUN npm install
+
 
 #Separar los pasos en diferentes etapas permite  "organizar mejor lo que queremos hacer"
 #Cada construccion de imagen msotrada abajo  son imagenes temporales y al final solo queda la ultima imagen contrusida
@@ -32,6 +38,7 @@ WORKDIR /app
 COPY --from=prod-dependencias /app/node_modules ./node_modules
 COPY index.js ./
 CMD ["node","index.js"]
+# CMD ["npm","start"] #otra forma
 
 #Este es el metodo sin etapa originalmente usado
 # FROM node:lts-alpine
